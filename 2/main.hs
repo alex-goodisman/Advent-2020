@@ -17,6 +17,6 @@ valid2 (lo, hi, char, pass) =
 main :: IO ()
 main = do
     content <- readFile "input.txt"
-    let values = (map parse . lines $ content)
+    let values = parse <$> lines content
     putStrLn . show . length . filter valid $ values
     putStrLn . show . length . filter valid2 $ values
