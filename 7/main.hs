@@ -12,16 +12,16 @@ parse input =
     (val, keys)
 
 
-bfs :: HashMap String [String] -> String -> HashSet String -> HashSet String
-bfs hm key found =
+dfs1 :: HashMap String [String] -> String -> HashSet String -> HashSet String
+dfs1 hm key found =
     let children = filter (not . (\a -> member a found)) $ lookupDefault [] key hm in
     let set = foldr Data.HashSet.insert found children in
-    foldr (bfs hm) set children
+    foldr (dfs1 hm) set children
 
-dfs :: HashMap String [(Int, String)] -> String -> Int
-dfs hm key =
+dfs2 :: HashMap String [(Int, String)] -> String -> Int
+dfs2 hm key =
     let children = lookupDefault [] key hm in
-    let counts = (\(n,s) -> n * (1 + dfs hm s) ) <$> children in
+    let counts = (\(n,s) -> n * (1 + dfs2 hm s) ) <$> children in
     sum counts
 
 main :: IO ()
@@ -29,6 +29,6 @@ main = do
     content <- readFile "input.txt"
     let infos = parse <$> lines content
     let hm = foldr (\(v, ks) hm -> foldr (\(_,k) hm' -> Data.HashMap.Lazy.insert k (v:(lookupDefault [] k hm')) hm') hm ks) Data.HashMap.Lazy.empty $ infos
-    putStrLn . show . size $ bfs hm "shiny gold" Data.HashSet.empty
+    putStrLn . show . size $ dfs1 hm "shiny gold" Data.HashSet.empty
     let hm2 = foldr (\(k, vs) hm -> Data.HashMap.Lazy.insert k vs hm) Data.HashMap.Lazy.empty infos
-    putStrLn . show $ dfs hm2 "shiny gold"
+    putStrLn . show $ dfs2 hm2 "shiny gold"
